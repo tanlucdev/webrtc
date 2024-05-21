@@ -1,0 +1,46 @@
+1. Một người nào đó sử dụng getUserMedia() - gọi là CLIENT1/Init/Offer/Caller
+2. CLIENT1 tạo RTCPeerConnection
+3. peerConnection cần STUN servers
+  - Sẽ cần ICE candidates sau đó
+4. CLIENT1 thêm localstream tracks cho peerConnection
+5. CLIENT1 tạo một yêu cầu (offer)
+  - cần peerConnection với tracks
+  - yêu cầu (offer) = RTCSessionDescription
+    1. SDP
+    2. Type (offer)
+6. ClIENT1 đưa offer đến pc.setLocalDescription
+~ 7. ICE candidates có thể bắt đầu đến (bất đồng bộ - ASYNC)
+SIGNALING (có thể giúp trình duyệt tìm và nói chuyện với người khác.)
+8. CLIENT1 phát ra yêu cầu
+  - socketio giữ yêu cầu cho trình duyệt khác
+  - kết hợp với CLIENT1
+9. Khi bước 7 bắt đầu, phát ICE candidates đến signaling server
+  - socketio giữ yêu cầu cho trình duyệt khác
+  - kết hợp với CLIENT1
+CLIENT1 và Signaling server chờ
+  - chờ người trả lời/ người nhận/ CLIENT2
+10. CLIENT2 tải trang với io.connect()
+  - một client mới kết nối vào signaling server
+11. socket.io phát RTCSessionDesc tới client mới
+  - một yêu cầu được gửi
+12. CLIENT2 chạy getUserMedia()
+13. CLIENT2 tạo một peerConnection
+14. CLIENT2 thêm localstream tracks vào peerConnection
+15. CLIENT2 tạo một phản hồi (createAnswer())
+  - createAnswer = RTCSessionDescription (sdp/type)
+16. CLIENT2 đưa phản hồi tới pc.setLocalDescription
+17. Vì CLIENT2 có yêu cầu, CLIENT2 có thể đưa yêu cầu tới pc.setRemoteDescription 
+(pc.setRemoteDescription là ở một phía khác)
+~18. khi setLocalDescription, bắt đầu thu thập ICE candidates
+Signaling server đang chờ...
+19. CLIENT2 phát phản hồi (RTCSessionDesc - sdp/type) tới signaling server
+~20. CLIENT2 sẽ lắng nghe tracks từ remote.
+  - and is done.
+  - chờ trên ICE candidates
+  - chờ trên tracks
+21. signaling server gửi câu trả lời đến CLIENT1 (RTCSessionDesc - sdp/type)
+22. CLIENT1 nhận phản hồi và đưa nó tới pc.setRemoteDescription
+~23. CLIENT1 chờ cho ICE candidates và tracks
+
+21 & 23 đang chờ ICE. Khi ICE thay đổi, tracks sẽ thay đổi 
+Có thể thêm điều này vào video tag
