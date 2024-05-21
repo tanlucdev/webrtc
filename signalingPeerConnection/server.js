@@ -24,12 +24,33 @@ const offers = [
   // offerIceCandidates
   // answererUsername
   // answer
-  // answericeCandidates
+  // answerIceCandidates
+]
+const connectedSockets = [
+  //username, socketId
 ]
 io.on('connection', (socket) => {
-  console.log("Someone has connected.")
 
+  const userName = socket.handshake.auth.userName
+  const password = socket.handshake.auth.password
+  if (password !== "x") {
+    socket.disconnect(true)
+    return
+  }
+  connectedSockets.push({
+    socketId: socket.id,
+    userName
+  })
   socket.on('newOffer', newOffer => {
-
+    offers.push({
+      offererUsername: userName,
+      offer: newOffer,
+      offerIceCandidates: [],
+      answererUsername: null,
+      answer: null,
+      answerIceCandidates: []
+    })
+    // Gừi đến tất cả socket được kết nối ngoại trừ người gọi
+    socket.broadcast.emit('newOfferAwaiting', offers.slice(-1))
   })
 })
