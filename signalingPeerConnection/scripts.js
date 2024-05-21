@@ -14,6 +14,7 @@ const remoteVideoEl = document.querySelector('#remote-video')
 let localStream
 let remoteStream
 let peerConnection
+let didIOffer = false
 
 let peerConfiguration = {
   iceServers: [
@@ -33,9 +34,8 @@ const call = async (e) => {
   })
   localVideoEl.srcObject = stream
   localStream = stream;
-
   // peerConnection is all set with our STUN servers sent over
-  // Đã được thiết lập xong với các máy chủ STUN của chúng tôi được gửi qua
+  // Đã được thiết lập xong với các máy chủ STUN được gửi qua
   await createPeerConnection()
 
   // Create offer time! | Tạo yêu cầu
@@ -43,7 +43,8 @@ const call = async (e) => {
     console.log("Creating offer...")
     const offer = await peerConnection.createOffer()
     console.log(offer)
-    peerConnection.setLocalDescripton(offer)
+    peerConnection.setLocalDescription(offer)
+    didIOffer = true
     socket.emit('newOffer', offer) // gửi offer đến signalingServer
   } catch (err) {
     console.log(err)
@@ -62,8 +63,15 @@ const createPeerConnection = () => {
       peerConnection.addTrack(track, localStream)
     })
     peerConnection.addEventListener('icecandidate', e => {
-      console.log('... Ice candidate found!')
-      console.log(e)
+      // console.log('... Ice candidate found!')
+      // console.log(e)
+      if (e.candidate) {
+        socket.emit('sendIceCandidateToSignalingServer', {
+          iceCandidate: e.candidate,
+          iceUsername: userName,
+          didIOffer
+        })
+      }
     })
     resolve();
   })

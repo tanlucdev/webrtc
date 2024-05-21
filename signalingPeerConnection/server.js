@@ -29,6 +29,7 @@ const offers = [
 const connectedSockets = [
   //username, socketId
 ]
+
 io.on('connection', (socket) => {
 
   const userName = socket.handshake.auth.userName
@@ -50,7 +51,19 @@ io.on('connection', (socket) => {
       answer: null,
       answerIceCandidates: []
     })
+    console.log(newOffer.sdp.slice(50))
     // Gừi đến tất cả socket được kết nối ngoại trừ người gọi
     socket.broadcast.emit('newOfferAwaiting', offers.slice(-1))
+  })
+  socket.on('sendIceCandidateToSignalingServer', iceCandidateObj => {
+    const { didIOffer, iceUsername, iceCandidate } = iceCandidateObj
+    console.log(iceCandidate)
+    if (didIOffer) {
+      const offerInOffers = offers.find(offer => offererUsername = iceUsername)
+      if (offerInOffers) {
+        offerInOffers.offerIceCandidates.push(iceCandidate)
+      }
+    }
+    console.log(">>>> offers: ", offers)
   })
 })
