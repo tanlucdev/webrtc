@@ -16,6 +16,20 @@ const expressServer = https.createServer({ cert, key }, app)
 // create socket.io server ... listen to express port
 const io = socketio(expressServer)
 expressServer.listen(8181)
+
+// offers will contain {}
+const offers = [
+  // offererUsername
+  // offer
+  // offerIceCandidates
+  // answererUsername
+  // answer
+  // answericeCandidates
+]
 io.on('connection', (socket) => {
   console.log("Someone has connected.")
+
+  socket.on('newOffer', newOffer => {
+
+  })
 })

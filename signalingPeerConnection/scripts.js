@@ -1,4 +1,12 @@
-const socket = io.connect('https://localhost:8181/')
+const userName = "Kento-" + Math.floor(Math.random() * 100000)
+const password = "x"
+document.querySelector("#user-name").innerHTML = userName
+
+const socket = io.connect('https://localhost:8181/', {
+  auth: {
+    userName, password
+  }
+})
 
 const localVideoEl = document.querySelector('#local-video')
 const remoteVideoEl = document.querySelector('#remote-video')
@@ -35,8 +43,10 @@ const call = async (e) => {
     console.log("Creating offer...")
     const offer = await peerConnection.createOffer()
     console.log(offer)
+    peerConnection.setLocalDescripton(offer)
+    socket.emit('newOffer', offer) // gửi offer đến signalingServer
   } catch (err) {
-
+    console.log(err)
   }
 
 }
