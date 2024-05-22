@@ -42,6 +42,12 @@ io.on('connection', (socket) => {
     socketId: socket.id,
     userName
   })
+
+  // Một người mới sẽ tham gia. Nếu có bất kì yêu cầu nào khả dụng. Phát nó đi.
+  if (offers.length) { // check xem nếu có ít nhất một yêu cầu
+    socket.emit('availableOffers', offers)
+  }
+
   socket.on('newOffer', newOffer => {
     offers.push({
       offererUsername: userName,
@@ -51,7 +57,7 @@ io.on('connection', (socket) => {
       answer: null,
       answerIceCandidates: []
     })
-    console.log(newOffer.sdp.slice(50))
+    console.log(">> New offer:", newOffer.sdp.slice(50))
     // Gừi đến tất cả socket được kết nối ngoại trừ người gọi
     socket.broadcast.emit('newOfferAwaiting', offers.slice(-1))
   })
@@ -59,7 +65,7 @@ io.on('connection', (socket) => {
     const { didIOffer, iceUsername, iceCandidate } = iceCandidateObj
     console.log(iceCandidate)
     if (didIOffer) {
-      const offerInOffers = offers.find(offer => offererUsername = iceUsername)
+      const offerInOffers = offers.find(offer => offer.offererUsername === iceUsername)
       if (offerInOffers) {
         offerInOffers.offerIceCandidates.push(iceCandidate)
       }
