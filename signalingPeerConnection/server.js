@@ -61,6 +61,9 @@ io.on('connection', (socket) => {
     // Gừi đến tất cả socket được kết nối ngoại trừ người gọi
     socket.broadcast.emit('newOfferAwaiting', offers.slice(-1))
   })
+
+
+
   socket.on('sendIceCandidateToSignalingServer', iceCandidateObj => {
     const { didIOffer, iceUsername, iceCandidate } = iceCandidateObj
     console.log(iceCandidate)

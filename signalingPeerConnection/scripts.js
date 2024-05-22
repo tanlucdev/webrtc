@@ -52,9 +52,13 @@ const answerOffer = async (offerObj) => {
   await fetchUserMedia()
   await createPeerConnection(offerObj)
   const answer = await peerConnection.createAnswer({})
-  peerConnection.setLocalDescription(answer)// Đây là CLIENT2
+  await peerConnection.setLocalDescription(answer)// Đây là CLIENT2
   // ClIENT 2 sử dụng answer như localDescription
   console.log(offerObj)
+  // nên là have-local-pranser vì CLIENT2 set local desc của nó vào answer của nó.
+  // console.log(peerConnection.signalingState)
+
+
 }
 
 const fetchUserMedia = async () => {
@@ -79,10 +83,15 @@ const createPeerConnection = (offerObj) => {
     //we can pass a config object, and that config object can contain stun servers
     //which will fetch us ICE candidates
     peerConnection = await new RTCPeerConnection(peerConfiguration)
-
     localStream.getTracks().forEach(track => {
       peerConnection.addTrack(track, localStream)
     })
+
+    peerConnection.addEventListener("signalingstatechange", (event) => {
+      console.log(event)
+      console.log(peerConnection.signalingState)
+    })
+
     peerConnection.addEventListener('icecandidate', e => {
       console.log('... Ice candidate found!')
       console.log(e)
@@ -97,7 +106,10 @@ const createPeerConnection = (offerObj) => {
     if (offerObj) {
       // không true khi gọi từ call()
       // sẽ true khi gọi từ answerOffer()
-      peerConnection.setRemoteDescription(offerObj.offer)
+      // console.log(peerConnection.signalingState) //sẽ ỗn định vì không có setDesc chạy 
+      await peerConnection.setRemoteDescription(offerObj.offer)
+      // Sẽ có  have-remote-offer, vì client2 sẽ có setRemoteDesc cho yêu cầu
+      // console.log(peerConnection.signalingState)
     }
     resolve();
   })
