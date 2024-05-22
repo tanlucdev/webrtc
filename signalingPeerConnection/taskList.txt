@@ -30,7 +30,7 @@ CLIENT1 và Signaling server chờ
   - createAnswer = RTCSessionDescription (sdp/type)
 16. CLIENT2 đưa phản hồi tới pc.setLocalDescription
 17. Vì CLIENT2 có yêu cầu, CLIENT2 có thể đưa yêu cầu tới pc.setRemoteDescription 
-(pc.setRemoteDescription là ở một phía khác)
+(pc.setRemoteDescription là ở một phía khác) #video32
 ~18. khi setLocalDescription, bắt đầu thu thập ICE candidates
 Signaling server đang chờ...
 19. CLIENT2 phát phản hồi (RTCSessionDesc - sdp/type) tới signaling server

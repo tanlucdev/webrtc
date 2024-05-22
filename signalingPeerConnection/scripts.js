@@ -29,11 +29,7 @@ let peerConfiguration = {
 
 // when a client initiates a call | khi khách hàng bắt đầu cuộc gọi
 const call = async (e) => {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: true
-  })
-  localVideoEl.srcObject = stream
-  localStream = stream;
+  await fetchUserMedia()
   // peerConnection is all set with our STUN servers sent over
   // Đã được thiết lập xong với các máy chủ STUN được gửi qua
   await createPeerConnection()
@@ -52,11 +48,32 @@ const call = async (e) => {
 
 }
 
-const answerOffer = (offerObj) => {
+const answerOffer = async (offerObj) => {
+  await fetchUserMedia()
+  await createPeerConnection(offerObj)
+  const answer = await peerConnection.createAnswer({})
+  peerConnection.setLocalDescription(answer)// Đây là CLIENT2
+  // ClIENT 2 sử dụng answer như localDescription
   console.log(offerObj)
 }
 
-const createPeerConnection = () => {
+const fetchUserMedia = async () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true
+      })
+      localVideoEl.srcObject = stream
+      localStream = stream;
+      resolve()
+    } catch (err) {
+      console.log(err)
+      reject()
+    }
+  })
+}
+
+const createPeerConnection = (offerObj) => {
   return new Promise(async (resolve, reject) => {
     //RTCPeerConnection is the thing that creates the connection
     //we can pass a config object, and that config object can contain stun servers
@@ -67,8 +84,8 @@ const createPeerConnection = () => {
       peerConnection.addTrack(track, localStream)
     })
     peerConnection.addEventListener('icecandidate', e => {
-      // console.log('... Ice candidate found!')
-      // console.log(e)
+      console.log('... Ice candidate found!')
+      console.log(e)
       if (e.candidate) {
         socket.emit('sendIceCandidateToSignalingServer', {
           iceCandidate: e.candidate,
@@ -77,6 +94,11 @@ const createPeerConnection = () => {
         })
       }
     })
+    if (offerObj) {
+      // không true khi gọi từ call()
+      // sẽ true khi gọi từ answerOffer()
+      peerConnection.setRemoteDescription(offerObj.offer)
+    }
     resolve();
   })
 }
