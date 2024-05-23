@@ -38,7 +38,7 @@ Signaling server đang chờ...
   - and is done.
   - chờ trên ICE candidates
   - chờ trên tracks
-21. signaling server gửi câu trả lời đến CLIENT1 (RTCSessionDesc - sdp/type)
+21. signaling server đợi phản hồi, gửi câu trả lời đến CLIENT1 (RTCSessionDesc - sdp/type)
 22. CLIENT1 nhận phản hồi và đưa nó tới pc.setRemoteDescription
 ~23. CLIENT1 chờ cho ICE candidates và tracks
 
