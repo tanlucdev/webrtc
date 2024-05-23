@@ -19,7 +19,7 @@ expressServer.listen(8181)
 
 // offers will contain {}
 const offers = [
-  // offererUsername
+  // offererUserName
   // offer
   // offerIceCandidates
   // answererUsername
@@ -31,7 +31,6 @@ const connectedSockets = [
 ]
 
 io.on('connection', (socket) => {
-
   const userName = socket.handshake.auth.userName
   const password = socket.handshake.auth.password
   if (password !== "x") {
@@ -50,29 +49,55 @@ io.on('connection', (socket) => {
 
   socket.on('newOffer', newOffer => {
     offers.push({
-      offererUsername: userName,
+      offererUserName: userName,
       offer: newOffer,
       offerIceCandidates: [],
       answererUsername: null,
       answer: null,
       answerIceCandidates: []
     })
-    console.log(">> New offer:", newOffer.sdp.slice(50))
+    // console.log(">> New offer:", newOffer.sdp.slice(50))
     // Gừi đến tất cả socket được kết nối ngoại trừ người gọi
     socket.broadcast.emit('newOfferAwaiting', offers.slice(-1))
   })
 
+  socket.on('newAnswer', offerObj => {
+    // console.log("--> offerObj: ", offerObj)
+    // Gửi phản hồi (offerOb) trở lại CLIENT1
+    // Gửi cho tất cả socket kết nối ngoại trừ người gọi
+
+    const socketToAnswer = connectedSockets.find(socket => socket.userName === offerObj.offererUserName);
+    if (!socketToAnswer) {
+      console.log("No matching socket found for user:", offerObj.offererUserName);
+      return;
+    }
+
+    // Tìm được đúng socket, gửi nó đi
+    const socketIdToAnswer = socketToAnswer.socketId
+    // Tìm được yêu cầu để cập nhật, vì thế cập nhật nó 
+    const offerToUpdate = offers.find(offer => offer.offererUserName === offerObj.offererUserName)
+    if (!offerToUpdate) {
+      console.log("No offerToUpdate")
+      return
+    }
+    offerToUpdate.answer = offerObj.answer
+    offerToUpdate.answererUsername = userName
+    // socket có .to() cái cho phép gửi đến căn phòng
+    // mỗi socket có một phòng riêng
+    socket.to(socketIdToAnswer).emit('answerResponse', offerToUpdate)
+
+  })
 
 
   socket.on('sendIceCandidateToSignalingServer', iceCandidateObj => {
     const { didIOffer, iceUsername, iceCandidate } = iceCandidateObj
-    console.log(iceCandidate)
+    // console.log(iceCandidate)
     if (didIOffer) {
-      const offerInOffers = offers.find(offer => offer.offererUsername === iceUsername)
+      const offerInOffers = offers.find(offer => offer.offererUserName === iceUsername)
       if (offerInOffers) {
         offerInOffers.offerIceCandidates.push(iceCandidate)
       }
     }
-    console.log(">>>> offers: ", offers)
+    // console.log(">>>> offers: ", offers)
   })
 })

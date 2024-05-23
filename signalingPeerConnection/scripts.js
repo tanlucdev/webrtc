@@ -38,7 +38,7 @@ const call = async (e) => {
   try {
     console.log("Creating offer...")
     const offer = await peerConnection.createOffer()
-    console.log(offer)
+    // console.log(offer)
     peerConnection.setLocalDescription(offer)
     didIOffer = true
     socket.emit('newOffer', offer) // gửi offer đến signalingServer
@@ -54,14 +54,25 @@ const answerOffer = async (offerObj) => {
   const answer = await peerConnection.createAnswer({})
   await peerConnection.setLocalDescription(answer)// Đây là CLIENT2
   // ClIENT 2 sử dụng answer như localDescription
-  console.log(offerObj)
+  // console.log(">> offerObj: ", offerObj)
+  // console.log('answer:', answer)
   // nên là have-local-pranser vì CLIENT2 set local desc của nó vào answer của nó.
   // console.log(peerConnection.signalingState)
-
-
+  // Thêm phản hồi đến offerObj vì thế server biết yêu cầu nào liên quan
+  offerObj.answer = answer
+  // Phát phản hồi đến signaling answer, vì thế nó có thể phát tới CLIENT1
+  socket.emit('newAnswer', offerObj)
 }
 
-const fetchUserMedia = async () => {
+const addAnswer = async (offerObj) => {
+  // addAnswer được gọi trong socketListeners khi một answerResponse được phát đi (emitted).
+  // Tại điểm này, offer và answer sẽ được trao đổi
+  // Bây giờ CLIENT1 cần set remote
+  await peerConnection.setRemoteDescription(offerObj.answer)
+  console.log(peerConnection.signalingState)
+}
+
+const fetchUserMedia = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -88,13 +99,13 @@ const createPeerConnection = (offerObj) => {
     })
 
     peerConnection.addEventListener("signalingstatechange", (event) => {
-      console.log(event)
-      console.log(peerConnection.signalingState)
+      // console.log(event)
+      // console.log("peerConnection.signalingState: ", peerConnection.signalingState)
     })
 
     peerConnection.addEventListener('icecandidate', e => {
       console.log('... Ice candidate found!')
-      console.log(e)
+      // console.log(e)
       if (e.candidate) {
         socket.emit('sendIceCandidateToSignalingServer', {
           iceCandidate: e.candidate,
