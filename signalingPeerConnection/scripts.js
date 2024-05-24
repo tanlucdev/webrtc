@@ -99,7 +99,11 @@ const createPeerConnection = (offerObj) => {
     //we can pass a config object, and that config object can contain stun servers
     //which will fetch us ICE candidates
     peerConnection = await new RTCPeerConnection(peerConfiguration)
+    remoteStream = new MediaStream()
+    remoteVideoEl.srcObject = remoteStream
+
     localStream.getTracks().forEach(track => {
+      // thêm localtracks vì thế chúng có thể được gửi khi connection được thiết lập
       peerConnection.addTrack(track, localStream)
     })
 
@@ -119,6 +123,15 @@ const createPeerConnection = (offerObj) => {
         })
       }
     })
+
+    peerConnection.addEventListener('track', e => {
+      console.log("Got a track from other peer!")
+      console.log(e)
+      e.streams[0].getTracks().forEach(track => {
+        remoteStream.addTrack(track, remoteStream)
+      })
+    })
+
     if (offerObj) {
       // không true khi gọi từ call()
       // sẽ true khi gọi từ answerOffer()
