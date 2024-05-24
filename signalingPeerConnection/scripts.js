@@ -61,7 +61,12 @@ const answerOffer = async (offerObj) => {
   // Thêm phản hồi đến offerObj vì thế server biết yêu cầu nào liên quan
   offerObj.answer = answer
   // Phát phản hồi đến signaling answer, vì thế nó có thể phát tới CLIENT1
-  socket.emit('newAnswer', offerObj)
+  // trông đợi phản hồi từ server với ICE candidates đã tồn tại
+  const offerIceCandidates = await socket.emitWithAck('newAnswer', offerObj)
+  offerIceCandidates.forEach(c => {
+    peerConnection.addIceCandidate(c)
+    console.log("====== Add Ice Candidate =====")
+  })
 }
 
 const addAnswer = async (offerObj) => {
@@ -124,6 +129,11 @@ const createPeerConnection = (offerObj) => {
     }
     resolve();
   })
+}
+
+const addNewIceCandidate = iceCandidate => {
+  peerConnection.addIceCandidate(iceCandidate)
+  console.log("===< Add Ice Candidate >===")
 }
 
 document.querySelector('#call').addEventListener('click', call)
