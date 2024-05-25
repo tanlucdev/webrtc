@@ -11,7 +11,7 @@ app.get('/user-link', (req, res) => {
   // Dữ liệu cho end-user's appt
   const apptData = {
     professionalFullName: "Kento De, X.F",
-    appDate: Date.now()
+    apptDate: Date.now()
   }
 
   // chúng ta cần mã hóa dữ liệu trong token
@@ -22,8 +22,11 @@ app.get('/user-link', (req, res) => {
   // res.json("This is a test route")
 })
 
-app.get('/validate-link', (req, res) => {
-  const token = req.query.token
+app.post('/validate-link', (req, res) => {
+  // lấy token từ body post request (dùng express.json())
+  const token = req.body.token
+  // giải mã jwt với linkSecret
   const decodedData = jwt.verify(token, linkSecret)
+  // gửi giải mã dữ liệu (object) trở lại front-end
   res.json(decodedData)
 })
