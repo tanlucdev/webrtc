@@ -1,5 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
+import socketConnection from './utilities/socketConnection'
 
 function App() {
   return (
