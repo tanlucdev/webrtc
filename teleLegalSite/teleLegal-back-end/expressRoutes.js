@@ -10,8 +10,8 @@ app.get('/user-link', (req, res) => {
 
   // Dữ liệu cho end-user's appt
   const apptData = {
-    professionalFullName: "Kento De, X.F",
-    apptDate: Date.now()
+    professionalsFullName: "Kento De, X.F",
+    apptDate: Date.now() + 500000
   }
 
   // chúng ta cần mã hóa dữ liệu trong token
