@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useState } from "react"
 import startLocalVideoStream from "./startLocalVideoStream"
+import updateCallStatus from "../../redux-elements/actions/updateCallStatus"
 
 const VideoButton = ({ smallFeedEl }) => {
   const callStatus = useSelector(state => state.callStatus)
@@ -11,7 +12,19 @@ const VideoButton = ({ smallFeedEl }) => {
 
   const startStopVideo = () => {
     // Nếu có media. Bắt đầu stream thấy video
-    if (callStatus.haveMedia) {
+    if (callStatus.video === "enabled") {
+      // cập nhật redux callStatus
+      dispatch(updateCallStatus('video', "disabled"))
+      // đặt stream thành disabled
+      const tracks = streams.localStream.stream.getVideoTracks()
+      tracks.forEach(t => t.enabled = false)
+    } else if (callStatus.video === "disabled") {
+      // cập nhật redux callStatus
+      dispatch(updateCallStatus('video', "enabled"))
+      // đặt stream thành enabled
+      const tracks = streams.localStream.stream.getVideoTracks()
+      tracks.forEach(t => t.enabled = true)
+    } else if (callStatus.haveMedia) {
       smallFeedEl.current.srcObject = streams.localStream.stream
       // thêm tracks vào peerConnection
       startLocalVideoStream(streams, dispatch)
@@ -24,6 +37,8 @@ const VideoButton = ({ smallFeedEl }) => {
       console.log("Pending update succeeded!")
       setPendingUpdate(false)
       smallFeedEl.current.srcObject = streams.localStream.stream
+      startLocalVideoStream(streams, dispatch)
+
     }
 
   }, [pendingUpdate, callStatus.haveMedia])
@@ -32,7 +47,7 @@ const VideoButton = ({ smallFeedEl }) => {
       <i className="fa fa-caret-up choose-video"></i>
       <div className="button camera" onClick={startStopVideo}>
         <i className="fa fa-video"></i>
-        <div className="btn-text">{callStatus.video === "display" ? "Stop" : "Start"} Video</div>
+        <div className="btn-text">{callStatus.video === "enabled" ? "Stop" : "Start"} Video</div>
       </div>
     </div>
   )
