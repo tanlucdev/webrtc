@@ -1,17 +1,20 @@
 import { useEffect } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { useState } from "react"
+import startLocalVideoStream from "./startLocalVideoStream"
 
 const VideoButton = ({ smallFeedEl }) => {
   const callStatus = useSelector(state => state.callStatus)
   const streams = useSelector(state => state.streams)
   const [pendingUpdate, setPendingUpdate] = useState(false)
+  const dispatch = useDispatch()
 
   const startStopVideo = () => {
     // Nếu có media. Bắt đầu stream thấy video
     if (callStatus.haveMedia) {
       smallFeedEl.current.srcObject = streams.localStream.stream
       // thêm tracks vào peerConnection
+      startLocalVideoStream(streams, dispatch)
     } else {
       setPendingUpdate(true)
     }
