@@ -18,8 +18,8 @@ const MainVideoPage = () => {
   // Lấy chuỗi truy vấn tìm hook
   const [searchParams, setSearchParams] = useSearchParams()
   const [apptInfo, setApptInfo] = useState({})
-  const smallFeedlEl = useRef(null)
-  const largeFeedlEl = useRef(null)
+  const smallFeedEl = useRef(null)
+  const largeFeedEl = useRef(null)
 
 
   useEffect(() => {
@@ -65,12 +65,12 @@ const MainVideoPage = () => {
 
       <div className="video-chat-wrapper">
         {/* Div giữ remote video, local video và chat window  */}
-        <video id="large-feed" ref={largeFeedlEl} autoPlay controls playsInline></video>
-        <video id="own-feed" ref={smallFeedlEl} autoPlay controls playsInline></video>
+        <video id="large-feed" ref={largeFeedEl} autoPlay controls playsInline></video>
+        <video id="own-feed" ref={smallFeedEl} autoPlay controls playsInline></video>
         {apptInfo.professionalsFullName ? <CallInfo apptInfo={apptInfo} /> : <></>}
         <ChatWindow />
       </div>
-      <ActionButtons />
+      <ActionButtons smallFeedEl={smallFeedEl} />
     </div>
   )
 }

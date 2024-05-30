@@ -7,7 +7,7 @@ const createPeerConnection = () => {
     // cần nhiều hơn một vào một thời điểm nhất định
     // truyền cho config object, nó chỉ là stun servers
     // nó sẽ lấy ICE candidates
-    const remoteStream = MediaStream()
+    const remoteStream = new MediaStream()
     peerConnection.addEventListener('signalingstatechange', (e) => {
       console.log("Signaling State Change")
       console.log(e)
