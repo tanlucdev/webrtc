@@ -5,10 +5,12 @@ import startLocalVideoStream from "./startLocalVideoStream"
 import updateCallStatus from "../../redux-elements/actions/updateCallStatus"
 
 const VideoButton = ({ smallFeedEl }) => {
+
+  const dispatch = useDispatch()
   const callStatus = useSelector(state => state.callStatus)
   const streams = useSelector(state => state.streams)
   const [pendingUpdate, setPendingUpdate] = useState(false)
-  const dispatch = useDispatch()
+  const [caretOpen, setCaretOpen] = false
 
   const startStopVideo = () => {
     // Nếu có media. Bắt đầu stream thấy video
@@ -44,7 +46,7 @@ const VideoButton = ({ smallFeedEl }) => {
   }, [pendingUpdate, callStatus.haveMedia])
   return (
     <div className="button-wrapper video-button d-inline-block">
-      <i className="fa fa-caret-up choose-video"></i>
+      <i className="fa fa-caret-up choose-video" onClick={() =>}></i>
       <div className="button camera" onClick={startStopVideo}>
         <i className="fa fa-video"></i>
         <div className="btn-text">{callStatus.video === "enabled" ? "Stop" : "Start"} Video</div>
