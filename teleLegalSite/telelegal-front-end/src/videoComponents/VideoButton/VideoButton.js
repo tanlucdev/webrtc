@@ -46,6 +46,7 @@ const VideoButton = ({ smallFeedEl }) => {
     // 5. Cập nhật localStream ở streams
     dispatch(addStream('localStream', stream))
     // 6. Thêm tracks
+    const tracks = stream.getVideoTracks()
   }
 
   const startStopVideo = () => {
@@ -91,6 +92,7 @@ const VideoButton = ({ smallFeedEl }) => {
         defaultValue={callStatus.videoDevice}
         changeHandler={changeVideoDevice}
         deviceList={videoDeviceList}
+        type="video"
       /> : <></>}
     </div>
   )
