@@ -4,7 +4,7 @@ import HangupButton from './HangupButton'
 import socket from '../webRTCutilities/socketConnection'
 import { useSelector } from 'react-redux';
 import VideoButton from './VideoButton/VideoButton';
-import AudioButton from './VideoButton/AudioButton';
+import AudioButton from './AudioButton/AudioButton';
 
 
 const ActionButtons = ({ openCloseChat, smallFeedEl }) => {
