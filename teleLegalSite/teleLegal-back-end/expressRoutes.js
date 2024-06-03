@@ -21,6 +21,7 @@ app.get('/user-link', (req, res) => {
     professionalsFullName: "Kento De, X.F",
     apptDate: Date.now() + 500000,
     uuid,
+    clientName: "mtxinhdep",
   }
 
   professionalsAppointments.push(apptData)
