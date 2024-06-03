@@ -2,17 +2,28 @@
 const app = require('./server').app
 const jwt = require('jsonwebtoken')
 const linkSecret = 'sdjkdsjksd4ds2eqessad'
-
+const { v4: uuidv4 } = require('uuid')
 // Route này là của chúng ta
 // Gửi nó đi. Chúng ta sẽ print và past nó vào.
 // Nó sẽ thả chúng ta xuống trang React với thông tin đúng cho CLIENT1 để tạo yêu cầu
+
+const professionalsAppointments = []
+
+app.set('professionalsAppointments', professionalsAppointments)
+
 app.get('/user-link', (req, res) => {
+
+  const uuid = uuidv4() // nó là unique id hoặc primary key
+
 
   // Dữ liệu cho end-user's appt
   const apptData = {
     professionalsFullName: "Kento De, X.F",
-    apptDate: Date.now() + 500000
+    apptDate: Date.now() + 500000,
+    uuid,
   }
+
+  professionalsAppointments.push(apptData)
 
   // chúng ta cần mã hóa dữ liệu trong token
   // vì thế nó có thể được thêm vào url
@@ -29,4 +40,6 @@ app.post('/validate-link', (req, res) => {
   const decodedData = jwt.verify(token, linkSecret)
   // gửi giải mã dữ liệu (object) trở lại front-end
   res.json(decodedData)
+
+  console.log('professionalsAppointments: ', professionalsAppointments)
 })
