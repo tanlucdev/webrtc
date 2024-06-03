@@ -62,7 +62,7 @@ const MainVideoPage = () => {
           }
         }
       }
-      dispatch(updateCallStatus('haveCreateOffer', true))
+      dispatch(updateCallStatus('haveCreatedOffer', true))
     }
     if
       (
