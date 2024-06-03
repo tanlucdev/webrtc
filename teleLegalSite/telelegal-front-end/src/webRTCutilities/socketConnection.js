@@ -1,5 +1,12 @@
 import { io } from 'socket.io-client'
 
-const socket = io.connect('https://localhost:9000')
+const socketConnection = (jwt) => {
 
-export default socket
+  const socket = io.connect('https://localhost:9000', {
+    auth: {
+      jwt
+    }
+  })
+}
+
+export default socketConnection

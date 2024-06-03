@@ -18,7 +18,7 @@ app.get('/user-link', (req, res) => {
 
   // Dữ liệu cho end-user's appt
   const apptData = {
-    professionalsFullName: "Kento De, X.F",
+    professionalsFullName: "Peter Chan, J.D.",
     apptDate: Date.now() + 500000,
     uuid,
     clientName: "mtxinhdep",
@@ -42,5 +42,14 @@ app.post('/validate-link', (req, res) => {
   // gửi giải mã dữ liệu (object) trở lại front-end
   res.json(decodedData)
 
-  console.log('professionalsAppointments: ', professionalsAppointments)
+  // console.log('professionalsAppointments: ', professionalsAppointments)
+})
+
+app.get('/pro-link', (req, res) => {
+  const userData = {
+    fullName: "Peter Chan, J.D.",
+    proId: 1234,
+  }
+  const token = jwt.sign(userData, linkSecret)
+  res.send(`<a href="https://localhost:3000/dashboard?token=${token}" target="_blank">Link here <a/>`)
 })

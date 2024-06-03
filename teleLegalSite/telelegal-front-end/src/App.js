@@ -11,7 +11,7 @@ function App() {
       <Routes>
         <Route exact path="/" Component={Home} />
         <Route path="/join-video" Component={MainVideoPage} />
-        <Route exact path="/dashboard" Component={ProDashboard} />
+        <Route path="/dashboard" Component={ProDashboard} />
       </Routes>
     </BrowserRouter>
   );

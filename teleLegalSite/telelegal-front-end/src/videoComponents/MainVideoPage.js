@@ -78,7 +78,6 @@ const MainVideoPage = () => {
   useEffect(() => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
     const token = searchParams.get('token')
-    console.log(token)
     const fetchDecodedToken = async () => {
       const resp = await axios.post('https://localhost:9000/validate-link', { token })
       // console.log(resp.data)
@@ -86,6 +85,7 @@ const MainVideoPage = () => {
     }
     fetchDecodedToken()
   }, [])
+
   return (
 
     <div className="main-video-page">

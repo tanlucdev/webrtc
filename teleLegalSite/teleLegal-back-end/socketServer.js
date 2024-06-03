@@ -1,5 +1,7 @@
 const io = require('./server').io
 const app = require('./server').app
+const linkSecret = 'sdjkdsjksd4ds2eqessad'
+const jwt = require('jsonwebtoken')
 
 const connectedProfessionals = []
 
@@ -19,12 +21,17 @@ io.on('connection', socket => {
   console.log(socket.id, "has connected")
 
 
-  const fullName = socket.handshake.auth.fullName
+  const jwt = socket.handshake.auth.jwt
+  const decodedData = jwt.verify(jwt, linkSecret)
+  const { fullName, proId } = decodedData
 
   connectedProfessionals.push({
     socketId: socket.id,
     fullName: fullName,
+    proId,
   })
+
+  console.log("connectedProfessionals: ", connectedProfessionals)
 
   socket.on('newOffer', ({ offer, apptInfo }) => {
     // offer = sdp/type, apptInfo có uuid có thể thêm vào allKnowOffers
