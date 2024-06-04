@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useSearchParams } from 'react-router-dom'
 import './ProDashboard.css'
-import socket from '../webRTCutilities/socketConnection'
+import socketConnection from '../webRTCutilities/socketConnection'
 
 const ProDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -10,6 +10,7 @@ const ProDashboard = () => {
   useEffect(() => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
     const token = searchParams.get('token')
+    socketConnection(token)
     console.log(token)
     const fetchDecodedToken = async () => {
       const resp = await axios.post('https://localhost:9000/validate-link', { token })
