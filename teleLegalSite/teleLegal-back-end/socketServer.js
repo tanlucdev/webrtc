@@ -19,17 +19,35 @@ const allKnownOffers = {
 
 io.on('connection', socket => {
   console.log(socket.id, "has connected")
-
-
-  const jwt = socket.handshake.auth.jwt
-  const decodedData = jwt.verify(jwt, linkSecret)
+  const handshakeData = socket.handshake.auth.jwt
+  let decodedData
+  try {
+    decodedData = jwt.verify(handshakeData, linkSecret)
+  } catch (err) {
+    console.log(err)
+    socket.disconnect()
+  }
   const { fullName, proId } = decodedData
+  if (proId) {
+    // nó là professional. Cập nhật/ thêm đến connectedProfessionals
+    // kiểm tra nếu user đã trong connectedProfessionals
+    // nó sẽ xảy ra bởi vì họ kết nối lại
+    const connectedPro = connectedProfessionals.find(cp => cp.proId === proId)
+    if (connectedPro) {
+      // nếu có, chỉ cập nhật socket.id mới
+      connectedPro.socketId = socket.id
+    } else {
+      // nếu không có, đẩy những thông tin vào
+      connectedProfessionals.push({
+        socketId: socket.id,
+        fullName,
+        proId,
+      })
+    }
+  } else {
+    // Là client
+  }
 
-  connectedProfessionals.push({
-    socketId: socket.id,
-    fullName: fullName,
-    proId,
-  })
 
   console.log("connectedProfessionals: ", connectedProfessionals)
 

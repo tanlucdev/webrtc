@@ -7,24 +7,30 @@ const { v4: uuidv4 } = require('uuid')
 // Gửi nó đi. Chúng ta sẽ print và past nó vào.
 // Nó sẽ thả chúng ta xuống trang React với thông tin đúng cho CLIENT1 để tạo yêu cầu
 
-const professionalsAppointments = []
-
-app.set('professionalsAppointments', professionalsAppointments)
+// thường sẽ là dữ liệu cứng... db, api, file, ...
+const professionalAppointments = [{
+  professionalsFullName: "Peter Chan, J.D.",
+  apptDate: Date.now() + 500000,
+  uuid: 1,
+  clientName: "Jim Jones",
+}, {
+  professionalsFullName: "Peter Chan, J.D.",
+  apptDate: Date.now() - 2000000,
+  uuid: 2,// uuid:uuidv4(),
+  clientName: "Akash Patel",
+}, {
+  professionalsFullName: "Peter Chan, J.D.",
+  apptDate: Date.now() + 10000000,
+  uuid: 3,//uuid:uuidv4(),
+  clientName: "Mike Williams",
+}];
+app.set('professionalAppointments', professionalAppointments)
 
 app.get('/user-link', (req, res) => {
 
-  const uuid = uuidv4() // nó là unique id hoặc primary key
+  const apptData = professionalAppointments[0]
 
-
-  // Dữ liệu cho end-user's appt
-  const apptData = {
-    professionalsFullName: "Peter Chan, J.D.",
-    apptDate: Date.now() + 500000,
-    uuid,
-    clientName: "mtxinhdep",
-  }
-
-  professionalsAppointments.push(apptData)
+  professionalAppointments.push(apptData)
 
   // chúng ta cần mã hóa dữ liệu trong token
   // vì thế nó có thể được thêm vào url
@@ -42,7 +48,7 @@ app.post('/validate-link', (req, res) => {
   // gửi giải mã dữ liệu (object) trở lại front-end
   res.json(decodedData)
 
-  // console.log('professionalsAppointments: ', professionalsAppointments)
+  // console.log('professionalAppointments: ', professionalAppointments)
 })
 
 app.get('/pro-link', (req, res) => {
