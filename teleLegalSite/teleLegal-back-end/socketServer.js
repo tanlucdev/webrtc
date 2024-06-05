@@ -44,6 +44,10 @@ io.on('connection', socket => {
         proId,
       })
     }
+    // send appt data out to the professional
+    const professionalAppointments = app.get('professionalAppointments')
+    socket.emit('apptData', professionalAppointments.filter(pa => pa.professionalsFullName === fullName))
+
   } else {
     // Là client
   }
