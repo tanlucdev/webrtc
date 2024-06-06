@@ -3,6 +3,7 @@ import './App.css';
 // import { socketConnection } from './webRTCutilities/socketConnection'
 import MainVideoPage from './videoComponents/MainVideoPage'
 import ProDashboard from './siteComponents/ProDashboard';
+import ProMainVideoPage from './videoComponents/ProMainVideoPage'
 
 const Home = () => <h1>Hello, Home Page</h1>
 function App() {
@@ -12,6 +13,8 @@ function App() {
         <Route exact path="/" Component={Home} />
         <Route path="/join-video" Component={MainVideoPage} />
         <Route path="/dashboard" Component={ProDashboard} />
+        <Route path="/join-video-pro" Component={ProMainVideoPage} />
+
       </Routes>
     </BrowserRouter>
   );
