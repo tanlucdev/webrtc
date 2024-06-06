@@ -5,15 +5,17 @@ import './ProDashboard.css'
 import socketConnection from '../webRTCutilities/socketConnection'
 import proSocketListeners from '../webRTCutilities/proSocketListeners'
 import moment from 'moment'
+import { useDispatch } from 'react-redux'
 
 const ProDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [apptInfo, setApptInfo] = useState([])
+  const dispatch = useDispatch()
   useEffect(() => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
     const token = searchParams.get('token')
     const socket = socketConnection(token)
-    proSocketListeners(socket, setApptInfo)
+    proSocketListeners(socket, setApptInfo, dispatch)
   }, [])
 
   return (
