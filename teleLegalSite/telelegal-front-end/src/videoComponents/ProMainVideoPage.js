@@ -12,7 +12,7 @@ import createPeerConnection from "../webRTCutilities/createPeerConnection"
 import socketConnection from '../webRTCutilities/socketConnection'
 import updateCallStatus from "../redux-elements/actions/updateCallStatus"
 
-const MainVideoPage = () => {
+const ProMainVideoPage = () => {
   const dispatch = useDispatch()
   const callStatus = useSelector(state => state.callStatus)
   const streams = useSelector(state => state.streams)
@@ -98,7 +98,15 @@ const MainVideoPage = () => {
         {/* Div giữ remote video, local video và chat window  */}
         <video id="large-feed" ref={largeFeedEl} autoPlay controls playsInline></video>
         <video id="own-feed" ref={smallFeedEl} autoPlay controls playsInline></video>
-        {apptInfo.professionalsFullName ? <CallInfo apptInfo={apptInfo} /> : <></>}
+        {callStatus.audio === "off" || callStatus.video === "off"
+          ?
+          <div className="call-info">
+            <h1>
+              {searchParams.get('client')} is in the waiting room.<br />
+              Can will start when video and audio are enabled.
+            </h1>
+          </div>
+          : <></>}
         <ChatWindow />
       </div>
       <ActionButtons smallFeedEl={smallFeedEl} />
@@ -106,4 +114,4 @@ const MainVideoPage = () => {
   )
 }
 
-export default MainVideoPage
+export default ProMainVideoPage
