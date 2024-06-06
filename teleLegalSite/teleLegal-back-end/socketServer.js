@@ -48,6 +48,13 @@ io.on('connection', socket => {
     const professionalAppointments = app.get('professionalAppointments')
     socket.emit('apptData', professionalAppointments.filter(pa => pa.professionalsFullName === fullName))
 
+    // Lặp qua tất cả yêu cầu và gửi đến professional vừa tham gia
+    for (const key in allKnownOffers) {
+      if (allKnownOffers[key].professionalsFullName === fullName) {
+        // yêu cầu cho professional
+        io.to(socket.id).emit('newOfferWaiting', allKnownOffers)
+      }
+    }
   } else {
     // Là client
   }
@@ -69,11 +76,27 @@ io.on('connection', socket => {
 
     // không gửi nó cho tất cả như chat server
     // chỉ gửi cho professional
+
+
+    // Lấy được professionalAppointments từ express
+    const professionalAppointments = app.get('professionalAppointments')
+    // Tìm appt cụ thể để có thể cập nhật user đang chờ (gửi chúng tôi 1 yêu cầu )
+    const pa = professionalAppointments.find(pa => pa.uuid === apptInfo.uuid)
+    if (pa) {
+      pa.waiting = true
+    }
+
+    // Tìm professional cụ thể, vì thế có thể gửi
     const p = connectedProfessionals.find(cp => cp.fullName === apptInfo.professionalsFullName)
     if (p) {
       // chỉ gửi nếu đã được kết nối, không kết nói thì không lấy được info
       const socketId = p.socketId
+      // gửi yêu cầu mới
       socket.to(socketId).emit('newOfferWaiting', allKnownOffers[apptInfo.uuid])
+      // gửi cập nhật appt info với waiting mới
+      socket.to(socketId).emit('apptData',
+        professionalAppointments.filter(pa => pa.professionalsFullName === apptInfo.fullName))
+
     }
   })
 })
