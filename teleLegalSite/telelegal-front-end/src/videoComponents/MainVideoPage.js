@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux"
 import createPeerConnection from "../webRTCutilities/createPeerConnection"
 import socketConnection from '../webRTCutilities/socketConnection'
 import updateCallStatus from "../redux-elements/actions/updateCallStatus"
+import clientSocketListeners from "../webRTCutilities/clientSocketListeners"
 
 const MainVideoPage = () => {
   const dispatch = useDispatch()
@@ -56,11 +57,15 @@ const MainVideoPage = () => {
           try {
             const pc = streams[s].peerConnection
             const offer = await pc.createOffer()
+            pc.setLocalDescription(offer)
             // lấy token từ url cho socket connection
             const token = searchParams.get('token')
             // lấy socket từ socketConnection
             const socket = socketConnection(token)
             socket.emit('newOffer', { offer, apptInfo })
+            // thêm event listenrs
+            clientSocketListeners(socket, dispatch)
+
           } catch (err) {
             console.log(err)
           }
@@ -79,6 +84,23 @@ const MainVideoPage = () => {
 
   }, [callStatus.audio, callStatus.video, callStatus.haveCreatedOffer])
 
+  useEffect(() => {
+    // lắng nghe thay đổi từ callStatus.answer
+    // nếu nó tồn tại, có answer
+    const asyncAddAnswer = async () => {
+      for (const s in streams) {
+        if (s !== "localStream") {
+          const pc = streams[s].peerConnection
+          await pc.setRemoteDescription(callStatus.answer)
+          console.log(pc.signalingState)
+          console.log("Answer added.")
+        }
+      }
+    }
+    if (callStatus.answer) {
+      asyncAddAnswer()
+    }
+  }, [callStatus.answer])
   useEffect(() => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
     const token = searchParams.get('token')

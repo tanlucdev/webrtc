@@ -2,7 +2,7 @@ import peerConfiguration from "./stunServers"
 
 const createPeerConnection = () => {
   return new Promise(async (resolve, reject) => {
-    const peerConnection = await new RTCPeerConnection()
+    const peerConnection = await new RTCPeerConnection(peerConfiguration)
     // rtcPeerConnection is the connection to peer.
     // cần nhiều hơn một vào một thời điểm nhất định
     // truyền cho config object, nó chỉ là stun servers
@@ -12,9 +12,9 @@ const createPeerConnection = () => {
       console.log("Signaling State Change")
       console.log(e)
     })
-    peerConnection.addEventListener('icecandidates', (e) => {
+    peerConnection.addEventListener('icecandidate', e => {
       console.log("Found ice candidate...")
-      if (e.icecandidate) {
+      if (e.candidate) {
         // gửi đến socket server
       }
       console.log(e)

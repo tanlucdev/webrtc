@@ -4,7 +4,7 @@ const linkSecret = 'sdjkdsjksd4ds2eqessad'
 const jwt = require('jsonwebtoken')
 
 const connectedProfessionals = []
-
+const connectedClients = []
 
 const allKnownOffers = {
   // uniqueID - key
@@ -26,8 +26,10 @@ io.on('connection', socket => {
   } catch (err) {
     console.log(err)
     socket.disconnect()
+    return
   }
   const { fullName, proId } = decodedData
+
   if (proId) {
     // nó là professional. Cập nhật/ thêm đến connectedProfessionals
     // kiểm tra nếu user đã trong connectedProfessionals
@@ -52,15 +54,45 @@ io.on('connection', socket => {
     for (const key in allKnownOffers) {
       if (allKnownOffers[key].professionalsFullName === fullName) {
         // yêu cầu cho professional
-        io.to(socket.id).emit('newOfferWaiting', allKnownOffers)
+        io.to(socket.id).emit('newOfferWaiting', allKnownOffers[key])
       }
     }
   } else {
     // Là client
+    const { professionalsFullName, uuid, clientName } = decodedData
+    // kiểm tra xem client đã có trong array chưa
+    const clientExist = connectedClients.find(c => c.uuid == uuid)
+    if (clientExist) {
+      // sẵn sàng kết nối, chỉ cập nhật lại ID
+      clientExist.socketId = socket.id
+    } else {
+      // thêm vào 
+      connectedClients.push({
+        clientName,
+        uuid,
+        professionalMeetingWith: professionalsFullName,
+        socketId: socket.id,
+      })
+    }
+
+    const offerForThisClient = allKnownOffers[uuid]
+    if (offerForThisClient) {
+      io.to(socket.id).emit('answerToClient', offerForThisClient.answer)
+    }
   }
 
-
-  console.log("connectedProfessionals: ", connectedProfessionals)
+  socket.on('newAnswer', ({ answer, uuid }) => {
+    // gửi tới client
+    const socketToSendTo = connectedClients.find(c => c.uuid == uuid)
+    if (socketToSendTo) {
+      socket.to(socketToSendTo.socketId).emit('answerToClient', answer)
+    }
+    // Cập nhật yêu cầu
+    const knownOffer = allKnownOffers[uuid]
+    if (knownOffer) {
+      knownOffer.answer = answer
+    }
+  })
 
   socket.on('newOffer', ({ offer, apptInfo }) => {
     // offer = sdp/type, apptInfo có uuid có thể thêm vào allKnowOffers
