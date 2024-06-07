@@ -2,7 +2,6 @@ import updateCallStatus from "../redux-elements/actions/updateCallStatus"
 
 const proSocketListeners = (socket, setApptInfo, dispatch) => {
   socket.on('apptData', apptData => {
-    console.log(apptData)
     setApptInfo(apptData)
   })
 

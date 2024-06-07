@@ -20,11 +20,10 @@ const ProDashboard = () => {
   }, [])
 
   const joinCall = (appt) => {
-    console.log(appt)
+    console.log("appt: ", appt)
     const token = searchParams.get('token')
     // navigate to /join-video-pro
     navigate(`/join-video-pro?token=${token}&uuid=${appt.uuid}&client=${appt.clientName}`)
-
   }
 
   return (
@@ -66,11 +65,14 @@ const ProDashboard = () => {
                   <h4>Coming Appointments</h4>
                   {apptInfo.map(a => <div key={a.uuid}>
                     <li className="client">{a.clientName} - {moment(a.apptDate).calendar()}
+                      {console.log("a.waiting: ", a.waiting)}
                       {a.waiting ?
                         <>
                           <div className="waiting-text d-inline-block">Waiting</div>
                           <button className="btn btn-danger join-btn" onClick={() => joinCall(a)}>Join</button>
-                        </> : <></>}
+                        </>
+                        : <></>
+                      }
                     </li>
                   </div>)}
 

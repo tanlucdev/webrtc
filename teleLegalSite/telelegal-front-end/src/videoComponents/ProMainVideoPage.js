@@ -22,7 +22,6 @@ const ProMainVideoPage = () => {
   const smallFeedEl = useRef(null)
   const largeFeedEl = useRef(null)
 
-
   useEffect(() => {
     // Lấy user media (fetch)
     const fetchMedia = async () => {
@@ -49,35 +48,51 @@ const ProMainVideoPage = () => {
   }, [])
 
   useEffect(() => {
-    const createOfferAsync = async () => {
-      // có audio và video, cần offer => tạo offer
+    const setAsyncOffer = async () => {
       for (const s in streams) {
         if (s !== "localStream") {
-          try {
-            const pc = streams[s].peerConnection
-            const offer = await pc.createOffer()
-            // lấy token từ url cho socket connection
-            const token = searchParams.get('token')
-            // lấy socket từ socketConnection
-            const socket = socketConnection(token)
-            socket.emit('newOffer', { offer, apptInfo })
-          } catch (err) {
-            console.log(err)
-          }
+          const pc = streams[s].peerConnection
+          await pc.setRemoteDescription(callStatus.offer)
+          console.log(pc.signalingState)
         }
       }
-      dispatch(updateCallStatus('haveCreatedOffer', true))
     }
-    if
-      (
+    if (callStatus.offer && streams.remote1 && streams.remote1.peerConnection) {
+      setAsyncOffer()
+    }
+  }, [callStatus.offer, streams.remote1])
+
+  useEffect(() => {
+    const createAnswerAsync = async () => {
+      // có video và audio, có thể tạo answer và setLocalDescription
+      for (const s in streams) {
+        if (s !== "localStream") {
+          const pc = streams[s].peerConnection
+          // Tạo answer
+          const answer = await pc.createAnswer();
+          // Bởi vì là answering client, answer là localDesciption
+          await pc.setLocalDescription(answer)
+          console.log(pc.signalingState) // có local answer
+          dispatch(updateCallStatus('haveCreatedAnswer', true))
+          dispatch(updateCallStatus('answer', answer))
+          // Gửi answer đến server
+          const token = searchParams.get('token')
+          const socket = socketConnection(token)
+          const uuid = searchParams.get('uuid')
+          socket.emit('newAnswer', { answer, uuid })
+        }
+      }
+    }
+    // chỉ tạo câu trả lời nếu audio và vidieo đã enable và haveCreatedAnswer là false
+    // nó sẽ chạy nhiều lần, nhưng ba điều kiện chỉ xuất hiện một lần
+    if (
       callStatus.audio === "enabled"
       && callStatus.video === "enabled"
-      && !callStatus.haveCreatedOffer
+      && !callStatus.haveCreatedAnswer
     ) {
-      createOfferAsync()
+      createAnswerAsync()
     }
-
-  }, [callStatus.audio, callStatus.video, callStatus.haveCreatedOffer])
+  }, [callStatus.audio, callStatus.video, callStatus.haveCreatedAnswer])
 
   useEffect(() => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
@@ -106,10 +121,13 @@ const ProMainVideoPage = () => {
               Can will start when video and audio are enabled.
             </h1>
           </div>
-          : <></>}
+          : <></>
+        }
         <ChatWindow />
       </div>
-      <ActionButtons smallFeedEl={smallFeedEl} />
+      <ActionButtons
+        smallFeedEl={smallFeedEl}
+      />
     </div>
   )
 }
