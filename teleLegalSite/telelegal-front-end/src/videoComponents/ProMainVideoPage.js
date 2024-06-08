@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux"
 import createPeerConnection from "../webRTCutilities/createPeerConnection"
 import socketConnection from '../webRTCutilities/socketConnection'
 import updateCallStatus from "../redux-elements/actions/updateCallStatus"
+import proSocketListeners from "../webRTCutilities/proSocketListeners"
 
 const ProMainVideoPage = () => {
   const dispatch = useDispatch()
@@ -21,6 +22,8 @@ const ProMainVideoPage = () => {
   const [apptInfo, setApptInfo] = useState({})
   const smallFeedEl = useRef(null)
   const largeFeedEl = useRef(null)
+  const [haveGottenIce, setHaveGottenIce] = useState(false)
+  const streamsRef = useRef(null)
 
   useEffect(() => {
     // Lấy user media (fetch)
@@ -35,7 +38,7 @@ const ProMainVideoPage = () => {
         // dispatch sẽ gửi function đến redux dispatcher vì thế tất cả reducer có thể được thông báo
         // có 2 phần là stream và who
         dispatch(addStream('localStream', stream))
-        const { peerConnection, remoteStream } = await createPeerConnection()
+        const { peerConnection, remoteStream } = await createPeerConnection(addIce)
         // remoete1 có thể thay đổi vì không biết sẽ có ai kết nối
         dispatch(addStream('remote1', remoteStream, peerConnection))
         // SDP: thông tin về feed và không có tracks
@@ -46,6 +49,31 @@ const ProMainVideoPage = () => {
     }
     fetchMedia()
   }, [])
+
+  useEffect(() => {
+    const getIceAsync = async () => {
+      const socket = socketConnection(searchParams.get('token'))
+      const uuid = searchParams.get('uuid')
+      const iceCandidates = await socket.emitWithAck('getIce', uuid, 'professional')
+      console.log("Ice Candidates Received")
+      console.log(iceCandidates)
+      iceCandidates.forEach(iceC => {
+        for (const s in streams) {
+          if (s !== 'localStream') {
+            const pc = streams[s].peerConnection
+            pc.addIceCandidate(iceC)
+            console.log("===== Add ice candidates")
+          }
+        }
+      })
+    }
+    if (streams.remote1 && !haveGottenIce) {
+      setHaveGottenIce(true)
+      getIceAsync()
+      streamsRef.current = streams // cập nhật streamsRef khi biết stream tồn tại
+
+    }
+  }, [streams, haveGottenIce])
 
   useEffect(() => {
     const setAsyncOffer = async () => {
@@ -104,6 +132,34 @@ const ProMainVideoPage = () => {
     }
     fetchDecodedToken()
   }, [])
+
+  useEffect(() => {
+    // Lấy token được tìm ra khỏi chuỗi truy vấn
+    const token = searchParams.get('token')
+    const socket = socketConnection(token)
+    proSocketListeners.proVideoSocketListeners(socket, addIceCandidateToPc)
+  }, [])
+
+  const addIceCandidateToPc = (iceC) => {
+    // Thêm iceCandidate từ remote đến peerconnection
+    for (const s in streamsRef.current) {
+      if (s !== 'localStream') {
+        const pc = streamsRef.current[s].peerConnection
+        pc.addIceCandidate(iceC)
+        console.log("Added an iceCandidate to existing page presence ")
+      }
+    }
+  }
+
+  const addIce = (iceC) => {
+    // gửi icecandidate đến server
+    const socket = socketConnection(searchParams.get('token'))
+    socket.emit('iceToServer', {
+      iceC,
+      who: 'professional',
+      uuid: searchParams.get('uuid')
+    })
+  }
 
   return (
 

@@ -12,11 +12,12 @@ const ProDashboard = () => {
   const navigate = useNavigate()
   const [apptInfo, setApptInfo] = useState([])
   const dispatch = useDispatch()
+
   useEffect(() => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
     const token = searchParams.get('token')
     const socket = socketConnection(token)
-    proSocketListeners(socket, setApptInfo, dispatch)
+    proSocketListeners.proDashBoardSocketListeners(socket, setApptInfo, dispatch)
   }, [])
 
   const joinCall = (appt) => {
