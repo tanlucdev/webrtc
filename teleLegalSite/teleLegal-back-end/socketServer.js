@@ -131,4 +131,40 @@ io.on('connection', socket => {
 
     }
   })
+
+  socket.on('getIce', (uuid, who, ackFunc) => {
+    const offer = allKnownOffers[uuid]
+    let iceCandidates = []
+    if (who === 'professional') {
+      iceCandidates = offer.offererIceCandidates
+    } else if (who === "client") {
+      iceCandidates = offer.answerIceCandidates
+    }
+    ackFunc(iceCandidates)
+  })
+
+  socket.on('iceToServer', ({ who, iceC, uuid }) => {
+    console.log("========================", who)
+    console.log(who)
+    console.log(iceC)
+    console.log(uuid)
+    const offerToUpdate = allKnownOffers[uuid]
+    if (offerToUpdate) {
+      if (who === "client") {
+        // client gửi ice canidate
+        // cập nhật yêu cầu
+        offerToUpdate.offererIceCandidates.push(iceC)
+        const socketToSendTo = connectedProfessionals.find(cp => cp.fullName === decodedData.professionalsFullName)
+        if (socketToSendTo) {
+          socket.to(socketToSendTo.socketId).emit('iceToClient', iceC)
+        }
+      } else if (who === "professional") {
+        offerToUpdate.answerIceCandidates.push(iceC)
+        const socketToSendTo = connectedClients.find(cp => cp.uuid === uuid)
+        if (socketToSendTo) {
+          socket.to(socketToSendTo.socketId).emit('iceToClient', iceC)
+        }
+      }
+    }
+  })
 })

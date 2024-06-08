@@ -1,6 +1,6 @@
 import peerConfiguration from "./stunServers"
 
-const createPeerConnection = () => {
+const createPeerConnection = (addIce) => {
   return new Promise(async (resolve, reject) => {
     const peerConnection = await new RTCPeerConnection(peerConfiguration)
     // rtcPeerConnection is the connection to peer.
@@ -16,6 +16,7 @@ const createPeerConnection = () => {
       console.log("Found ice candidate...")
       if (e.candidate) {
         // gửi đến socket server
+        addIce(e.candidate)
       }
       console.log(e)
     })
