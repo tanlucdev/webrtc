@@ -24,6 +24,7 @@ const MainVideoPage = () => {
   const largeFeedEl = useRef(null)
   const uuidRef = useRef(null)
   const streamsRef = useRef(null)
+  const [showCallInfo, setShowCallInfo] = useState(true)
 
   useEffect(() => {
     // Lấy user media (fetch)
@@ -43,6 +44,7 @@ const MainVideoPage = () => {
         dispatch(addStream('remote1', remoteStream, peerConnection))
         // SDP: thông tin về feed và không có tracks
         // không có tracks sẽ không hữu dụng. Chỉ hữu dụng khi được đưa tracks
+        largeFeedEl.current.srcObject = remoteStream
       } catch (err) {
         console.log(err)
       }
@@ -129,12 +131,15 @@ const MainVideoPage = () => {
   }, [])
 
   const addIceCandidateToPc = (iceC) => {
+    console.log("Running...")
     // Them iceCandidate tu remote den peerconnection
     for (const s in streamsRef.current) {
       if (s !== 'localStream') {
         const pc = streamsRef.current[s].peerConnection
+        console.log("before add client")
         pc.addIceCandidate(iceC)
         console.log("Add an iceCandidate to existing page presence ")
+        setShowCallInfo(false)
       }
     }
   }
@@ -157,7 +162,7 @@ const MainVideoPage = () => {
         {/* Div giữ remote video, local video và chat window  */}
         <video id="large-feed" ref={largeFeedEl} autoPlay controls playsInline></video>
         <video id="own-feed" ref={smallFeedEl} autoPlay controls playsInline></video>
-        {apptInfo.professionalsFullName ? <CallInfo apptInfo={apptInfo} /> : <></>}
+        {showCallInfo ? <CallInfo apptInfo={apptInfo} /> : <></>}
         <ChatWindow />
       </div>
       <ActionButtons smallFeedEl={smallFeedEl} />

@@ -43,6 +43,7 @@ const ProMainVideoPage = () => {
         dispatch(addStream('remote1', remoteStream, peerConnection))
         // SDP: thông tin về feed và không có tracks
         // không có tracks sẽ không hữu dụng. Chỉ hữu dụng khi được đưa tracks
+        largeFeedEl.current.srcObject = remoteStream
       } catch (err) {
         console.log(err)
       }
@@ -78,7 +79,7 @@ const ProMainVideoPage = () => {
   useEffect(() => {
     const setAsyncOffer = async () => {
       for (const s in streams) {
-        if (s !== "localStream") {
+        if (s !== 'localStream') {
           const pc = streams[s].peerConnection
           await pc.setRemoteDescription(callStatus.offer)
           console.log(pc.signalingState)
@@ -145,6 +146,7 @@ const ProMainVideoPage = () => {
     for (const s in streamsRef.current) {
       if (s !== 'localStream') {
         const pc = streamsRef.current[s].peerConnection
+        console.log("before add pro")
         pc.addIceCandidate(iceC)
         console.log("Added an iceCandidate to existing page presence ")
       }
