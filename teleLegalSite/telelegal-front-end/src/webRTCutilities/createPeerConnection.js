@@ -18,7 +18,6 @@ const createPeerConnection = (addIce) => {
         // gửi đến socket server
         addIce(e.candidate)
       }
-      console.log(e)
     })
     peerConnection.addEventListener('track', e => {
       console.log("Got a track from the remote")

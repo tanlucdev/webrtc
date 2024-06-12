@@ -74,8 +74,6 @@ const MainVideoPage = () => {
             const socket = socketConnection(token)
             socket.emit('newOffer', { offer, apptInfo })
             // thêm event listenrs
-            clientSocketListeners(socket, dispatch)
-
           } catch (err) {
             console.log(err)
           }
@@ -127,7 +125,7 @@ const MainVideoPage = () => {
     // Lấy token được tìm ra khỏi chuỗi truy vấn
     const token = searchParams.get('token')
     const socket = socketConnection(token)
-    clientSocketListeners(socket, addIceCandidateToPc)
+    clientSocketListeners(socket, dispatch, addIceCandidateToPc)
   }, [])
 
   const addIceCandidateToPc = (iceC) => {

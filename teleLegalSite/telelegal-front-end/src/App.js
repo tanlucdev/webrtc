@@ -4,6 +4,7 @@ import './App.css';
 import MainVideoPage from './videoComponents/MainVideoPage'
 import ProDashboard from './siteComponents/ProDashboard';
 import ProMainVideoPage from './videoComponents/ProMainVideoPage'
+import Rules from './siteComponents/Rules';
 
 const Home = () => <h1>Hello, Home Page</h1>
 function App() {
@@ -14,6 +15,8 @@ function App() {
         <Route path="/join-video" Component={MainVideoPage} />
         <Route path="/dashboard" Component={ProDashboard} />
         <Route path="/join-video-pro" Component={ProMainVideoPage} />
+        <Route path="/rules" Component={Rules} />
+
 
       </Routes>
     </BrowserRouter>
